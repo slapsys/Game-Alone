@@ -39,6 +39,26 @@ function game:init()
     createWorld()
 end
 
+function game:enter()
+    game.music = love.audio.newSource("sounds/horror_background.mp3")
+    game.music:setLooping(true)
+    game.volume = 0.0
+    --game.music:setPitch(0.3)
+    game.music:play()
+    game.engineSound = love.audio.newSource("sounds/ghost-yacht.wav")
+    game.engineSound:setLooping(true)
+    game.engineSound:play()
+    game.breathing = love.audio.newSource("sounds/breathing.wav")
+    game.breathing:setLooping(true)
+    game.breathing:play()
+end
+
+function game:leave()
+    game.music:stop()
+    game.engineSound:stop()
+    game.breathing:stop()
+end
+
 function game:update(dt)
     game.player:rotate(game.rotDirection*3*dt)
     local forward = game.goDirection*15*dt
@@ -46,7 +66,13 @@ function game:update(dt)
     game.inertia = game.inertia * (1 - 3*dt) + forward
     game.player:forward(game.inertia)
 
+
+
+
     checkForCollision(dt)
+
+    game.volume = math.min(0.1, game.volume+dt/5)
+    game.music:setVolume(game.volume)
 
     game.camera:setRotation(game.player.rot+math.pi/2)
     game.camera:setRotationCenter(game.player.x, player.y)
@@ -66,6 +92,16 @@ function game:update(dt)
 
     game.player.air = math.max(0, game.player.air-dt*2.5)
     game.player.power = math.max(0, game.player.power - dt*math.abs(game.inertia) )
+
+    game.engineSound:setVolume(math.max(game.inertia/20, math.min(0.15, game.player.power/100)))
+
+    local breathVolume = (110-game.player.air)/100
+    if game.player.air < 20 then
+        breathVolume = 0.8 * math.max(0, game.player.air-3) / 18
+        game.music:setVolume(0.0)
+    end
+
+    game.breathing:setVolume(breathVolume)
 
     if game.player.air == 0 then
       Gamestate.switch(game_end, false)
