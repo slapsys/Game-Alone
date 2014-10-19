@@ -21,8 +21,8 @@ function scene:draw()
 end
 
 function scene:keyreleased(key, code)
-  if key == 'enter' or key == 'return' then
-    Gamestate.switch(game)
+  if key == 'enter' or key == 'return' or key == 'escape' then
+    Gamestate.switch(menu)
   end
 end
 

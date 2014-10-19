@@ -7,50 +7,54 @@ require 'radar'
 local game = {}
 
 function game:init()
-
-    game.sum = 0
-    game.rotDirection = 0
-    game.goDirection = 0
-    game.inertia = 0
-    game.spaceWidth = 8000
-    game.world = {}
-
-    game.player = player
-    game.player:init()
-    game.player.air = 100
-    game.player.power = 100
-    game.player.gold = 0
-    game.radar = radar
-    game.radar:init(400, 100)
-    game.radarPeriod = 5
-    game.powerAmount = 500
-    game.airAmount = 500
-    game.goldAmount = 10
-    game.dronesAmount = 20
-    game.scrapAmount = 500
-
-    game.camera = camera
-
     game.pSight = 175
     game.pSense = 200
     game.rSight = 12
     game.rSense = 30
-    game.currentRadarTime = game.radarPeriod
-    createWorld()
-end
-
-function game:enter()
     game.music = love.audio.newSource("sounds/horror_background.mp3")
     game.music:setLooping(true)
+    game.engineSound = love.audio.newSource("sounds/ghost-yacht.wav")
+    game.engineSound:setLooping(true)
+    game.breathing = love.audio.newSource("sounds/breathing.wav")
+    game.breathing:setLooping(true)
+end
+
+function game:enter(previous, shouldKeepState)
     game.volume = 0.0
     --game.music:setPitch(0.3)
     game.music:play()
-    game.engineSound = love.audio.newSource("sounds/ghost-yacht.wav")
-    game.engineSound:setLooping(true)
     game.engineSound:play()
-    game.breathing = love.audio.newSource("sounds/breathing.wav")
-    game.breathing:setLooping(true)
     game.breathing:play()
+
+    if not shouldKeepState then
+      game.sum = 0
+      game.rotDirection = 0
+      game.goDirection = 0
+      game.inertia = 0
+      game.spaceWidth = 8000
+      game.world = {}
+
+      game.player = player
+      game.player:init()
+      game.player.air = 100
+      game.player.power = 100
+      game.player.gold = 0
+      game.radar = radar
+      game.radar:init(400, 100)
+      game.radarPeriod = 5
+      game.powerAmount = 500
+      game.airAmount = 500
+      game.goldAmount = 10
+      game.dronesAmount = 20
+      game.scrapAmount = 500
+      game.player.airDelay = 0.5
+
+      game.camera = camera
+
+      game.currentRadarTime = game.radarPeriod
+      createWorld()
+    end
+
 end
 
 function game:leave()
@@ -65,9 +69,6 @@ function game:update(dt)
     if game.player.power == 0 then forward = 0 end
     game.inertia = game.inertia * (1 - 3*dt) + forward
     game.player:forward(game.inertia)
-
-
-
 
     checkForCollision(dt)
 
@@ -90,8 +91,13 @@ function game:update(dt)
     radar:setCenter(player.x, player.y)
     ---]]
 
-    game.player.air = math.max(0, game.player.air-dt*2.5)
-    game.player.power = math.max(0, game.player.power - dt*math.abs(game.inertia) )
+    game.player.airDelay = game.player.airDelay - dt
+
+    if (game.player.airDelay < 0) then
+      game.player.air = math.max(0, game.player.air-dt*2)
+    end
+
+    game.player.power = math.max(0, game.player.power - dt*math.abs(game.inertia)*0.8 )
 
     game.engineSound:setVolume(math.max(game.inertia/20, math.min(0.15, game.player.power/100)))
 
@@ -185,8 +191,16 @@ function createWorld()
     end
 
     for i=1,game.dronesAmount do
+
         local x = math.random() * game.spaceWidth - game.spaceWidth/2
         local y = math.random() * game.spaceWidth - game.spaceWidth/2
+        local dist = Point(game.player.x-x, game.player.y-y)
+        while dist:len() < 300 do
+            x = math.random() * game.spaceWidth - game.spaceWidth/2
+            y = math.random() * game.spaceWidth - game.spaceWidth/2
+            dist = Point(game.player.x-x, game.player.y-y)
+        end
+
         local hp = {}
         hp.p = Point(x, y)
         hp.type = "drone"
@@ -352,10 +366,7 @@ function drawPixels(pixels, color)
 end
 
 function game:keypressed(k)
-  if k == " " then
-
-
-  elseif k == "a" or k == "left" then
+    if k == "a" or k == "left" then
         game.rotDirection = game.rotDirection - 1
     elseif k == "d" or k == "right" then
         game.rotDirection = game.rotDirection + 1
@@ -368,7 +379,9 @@ function game:keypressed(k)
 end
 
 function game:keyreleased(k)
-  if k == "a" or k == "left" then
+    if k == "escape" then
+      Gamestate.switch(menu)
+    elseif k == "a" or k == "left" then
         game.rotDirection = game.rotDirection + 1
     elseif k == "d" or k == "right" then
         game.rotDirection = game.rotDirection - 1
