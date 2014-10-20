@@ -17,6 +17,7 @@ function game:init()
     game.engineSound:setLooping(true)
     game.breathing = love.audio.newSource("sounds/breathing.wav")
     game.breathing:setLooping(true)
+    love.math.setRandomSeed(love.math.getRandomSeed())
 end
 
 function game:enter(previous, shouldKeepState)
@@ -164,8 +165,8 @@ end
 
 function createWorld()
     for i=1,game.airAmount do
-        local x = math.random() * game.spaceWidth - game.spaceWidth/2
-        local y = math.random() * game.spaceWidth - game.spaceWidth/2
+        local x = love.math.random() * game.spaceWidth - game.spaceWidth/2
+        local y = love.math.random() * game.spaceWidth - game.spaceWidth/2
         local hp = {}
         hp.p = Point(x, y)
         hp.type = "air"
@@ -173,8 +174,8 @@ function createWorld()
     end
 
     for i=1,game.powerAmount do
-        local x = math.random() * game.spaceWidth - game.spaceWidth/2
-        local y = math.random() * game.spaceWidth - game.spaceWidth/2
+        local x = love.math.random() * game.spaceWidth - game.spaceWidth/2
+        local y = love.math.random() * game.spaceWidth - game.spaceWidth/2
         local hp = {}
         hp.p = Point(x, y)
         hp.type = "power"
@@ -182,8 +183,8 @@ function createWorld()
     end
 
     for i=1,game.goldAmount do
-        local x = math.random() * game.spaceWidth - game.spaceWidth/2
-        local y = math.random() * game.spaceWidth - game.spaceWidth/2
+        local x = love.math.random() * game.spaceWidth - game.spaceWidth/2
+        local y = love.math.random() * game.spaceWidth - game.spaceWidth/2
         local hp = {}
         hp.p = Point(x, y)
         hp.type = "gold"
@@ -192,12 +193,12 @@ function createWorld()
 
     for i=1,game.dronesAmount do
 
-        local x = math.random() * game.spaceWidth - game.spaceWidth/2
-        local y = math.random() * game.spaceWidth - game.spaceWidth/2
+        local x = love.math.random() * game.spaceWidth - game.spaceWidth/2
+        local y = love.math.random() * game.spaceWidth - game.spaceWidth/2
         local dist = Point(game.player.x-x, game.player.y-y)
         while dist:len() < 300 do
-            x = math.random() * game.spaceWidth - game.spaceWidth/2
-            y = math.random() * game.spaceWidth - game.spaceWidth/2
+            x = love.math.random() * game.spaceWidth - game.spaceWidth/2
+            y = love.math.random() * game.spaceWidth - game.spaceWidth/2
             dist = Point(game.player.x-x, game.player.y-y)
         end
 
@@ -208,8 +209,8 @@ function createWorld()
     end
 
     for i=1,game.scrapAmount do
-        local x = math.random() * game.spaceWidth - game.spaceWidth/2
-        local y = math.random() * game.spaceWidth - game.spaceWidth/2
+        local x = love.math.random() * game.spaceWidth - game.spaceWidth/2
+        local y = love.math.random() * game.spaceWidth - game.spaceWidth/2
         local hp = {}
         hp.p = Point(x, y)
         hp.type = "scrap"
